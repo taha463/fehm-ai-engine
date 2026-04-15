@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # MongoDB connection
-MONGO_URI = "mongodb+srv://tahaahmedkhari9_db_user:S8sefS8nhFuQAu4J@cluster0.qmmdkxq.mongodb.net/?appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI")
 try:
     print("[System] 🔌 Connecting to MongoDB Atlas...")
     cluster = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
