@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  # 1. The Reflexes (Redis)
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # 2. The Brain (FastAPI)
+  api:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  # 3. The Swarm (Celery Worker)
+  worker:
+    build: .
+    command: celery -A worker worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
