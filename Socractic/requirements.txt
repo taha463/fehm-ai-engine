@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+celery
+redis
+pymongo
+python-dotenv
+httpx
+certifi
+pydantic
