@@ -1,0 +1,414 @@
+/* ============================================================
+   App.css — Shell layout using CSS custom properties
+   All colours come from --var set by App.jsx on :root
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap");
+
+/* ── Reset ────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+/* ── Shell ────────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.sidebar-closed .sidebar {
+  width: 72px;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 14px;
+  height: 100%;
+  gap: 6px;
+  overflow: visible;
+}
+
+/* hide text labels when collapsed */
+.sidebar-closed .logo-text,
+.sidebar-closed .btn-label,
+.sidebar-closed .nav-label {
+  display: none;
+}
+
+/* Close button – desktop hide, mobile show */
+.close-sidebar-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.5;
+  padding: 6px;
+  border-radius: 8px;
+  align-self: flex-end;
+}
+.close-sidebar-btn:hover {
+  opacity: 1;
+  background: var(--panel);
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 10px;
+  width: 100%;
+  white-space: nowrap;
+  margin-bottom: 12px;
+}
+.logo:hover {
+  background: var(--panel);
+}
+
+/* New Chat button */
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--silver-btn);
+  color: var(--text);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
+}
+.new-chat-btn:hover {
+  opacity: 0.8;
+}
+.sidebar-closed .new-chat-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* Nav */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0.5;
+  white-space: nowrap;
+  transition:
+    opacity 0.2s,
+    background 0.2s;
+  border: 1px solid transparent;
+}
+.nav-link:hover {
+  opacity: 0.8;
+  background: var(--panel);
+}
+.nav-link.active {
+  opacity: 1;
+  background: var(--panel);
+  border-color: var(--border);
+}
+.sidebar-closed .nav-link {
+  justify-content: center;
+  padding: 10px;
+  width: 44px;
+}
+
+/* Theme picker */
+.theme-container {
+  position: relative;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.theme-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 100%;
+  white-space: nowrap;
+}
+.theme-trigger:hover {
+  opacity: 0.8;
+}
+.sidebar-closed .theme-trigger {
+  width: 44px;
+  justify-content: center;
+  padding: 10px;
+  padding-left: 11px;
+}
+.sidebar-closed .theme-trigger .chevron {
+  display: none;
+}
+
+.theme-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  min-width: 160px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  z-index: 500;
+  animation: popIn 0.15s ease;
+}
+.theme-trigger svg {
+  flex-shrink: 0;
+}
+.sidebar-closed .theme-popup {
+  left: 100%;
+  margin-left: 8px;
+}
+.theme-popup {
+  white-space: nowrap;
+  max-width: 200px;
+}
+.sidebar-closed .theme-popup {
+  transform-origin: left bottom;
+}
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    opacity 0.15s,
+    background 0.15s;
+}
+.theme-option:hover {
+  opacity: 1;
+  background: var(--panel);
+}
+.theme-option.active {
+  opacity: 1;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--panel);
+}
+
+/* Mobile overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+/* ── Main view ───────────────────────────────────────────── */
+.main-view {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.topbar-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.55;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.topbar-toggle:hover {
+  opacity: 1;
+  background: var(--panel);
+}
+
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  opacity: 0.85;
+  color: var(--text);
+}
+
+/* View content wrapper — fills remaining height */
+.view-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Mobile breakpoint ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 200;
+  }
+
+  .sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .close-sidebar-btn {
+    display: flex;
+  }
+
+  /* main view always full width on mobile */
+  .main-view {
+    width: 100%;
+  }
+}
+/* Sidebar sign-out button */
+.sign-out-btn {
+  margin-top: auto;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--text); /* ← use theme variable, not papayawhip */
+  opacity: 0.7;
+  cursor: pointer;
+  font-size: 0.8rem;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.sign-out-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.01);
+  border-color: var(--accent);
+}
+/* hide signout text when sidebar collapsed */
+.sidebar-closed .sign-out-btn span {
+  display: none;
+}
+
+.sidebar-closed .sign-out-btn {
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+}

@@ -1,0 +1,22 @@
+# SECURITY CRITICAL
+.env
+
+# Python Environments & Cache
+venv/
+env/
+__pycache__/
+*.pyc
+
+# AI & Data Models (Just in case you add local models later)
+*.pth
+*.pkl
+
+# Celery & Redis (Prevents uploading local background task junk)
+celerybeat-schedule
+celerybeat.pid
+dump.rdb
+
+# OS & IDE Files (Keeps Windows/Mac hidden files out)
+.DS_Store
+.vscode/
+.idea/

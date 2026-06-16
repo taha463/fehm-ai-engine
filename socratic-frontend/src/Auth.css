@@ -1,0 +1,336 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=DM+Sans:wght@400;500&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Shell: fills full screen, no scroll ──────────────────────── */
+.auth-shell {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #f0ede8;
+  font-family: "DM Sans", sans-serif;
+}
+
+/* ── Left dark panel ──────────────────────────────────────────── */
+.auth-art {
+  width: 42%;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  background: #090c14;
+}
+
+/* SVG fills panel completely */
+.auth-art > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Brand text pinned bottom-center */
+.auth-art-brand {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.auth-art-brand span {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.18);
+  text-transform: uppercase;
+}
+
+/* ---- Left panel – distinct light blue/lavender theme ---- */
+.auth-art {
+  width: 42%;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  background: #f0f4ff; /* soft, cool light blue – contrasts with right panel */
+}
+
+/* SVG fills panel completely */
+.auth-art > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Brand text pinned bottom-center */
+.auth-art-brand {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.auth-art-brand span {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: rgba(79, 70, 229, 0.4); /* purple hint */
+  text-transform: uppercase;
+}
+
+/* Quote chips – now more like subtle cards */
+.auth-q {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 16px;
+  padding: 12px 18px;
+  max-width: 210px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+.auth-q p {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #1e1b4b; /* deep indigo for contrast */
+  line-height: 1.55;
+}
+.auth-q-1 {
+  top: 16%;
+  left: 8%;
+}
+.auth-q-2 {
+  top: 50%;
+  right: 6%;
+}
+.auth-q-3 {
+  bottom: 14%;
+  left: 9%;
+}
+
+/* ── Right form panel ─────────────────────────────────────────── */
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 48px 40px;
+}
+
+.auth-form-wrap {
+  width: 100%;
+  max-width: 390px;
+}
+
+/* ── Logo row ─────────────────────────────────────────────────── */
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+.auth-logo svg {
+  color: #111;
+}
+.auth-logo-name {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.02em;
+}
+
+/* ── Headings ─────────────────────────────────────────────────── */
+.auth-title {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(1.6rem, 2.8vw, 1.95rem);
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 9px;
+}
+.auth-sub {
+  font-size: 0.875rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 26px;
+}
+
+/* ── Banners ──────────────────────────────────────────────────── */
+.auth-error {
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 0.82rem;
+  color: #c0392b;
+  margin-bottom: 14px;
+}
+.auth-success {
+  background: rgba(22, 163, 74, 0.06);
+  border: 1px solid rgba(22, 163, 74, 0.18);
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 0.82rem;
+  color: #166534;
+  margin-bottom: 14px;
+}
+
+/* ── Fields ───────────────────────────────────────────────────── */
+.auth-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-bottom: 13px;
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.auth-field label {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #444;
+}
+.auth-field input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-family: "DM Sans", sans-serif;
+  color: #111;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition:
+    border-color 0.14s,
+    box-shadow 0.14s;
+}
+.auth-field input::placeholder {
+  color: #bbb;
+}
+.auth-field input:focus {
+  border-color: #111;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ── Password ─────────────────────────────────────────────────── */
+.auth-pass-wrap {
+  position: relative;
+}
+.auth-pass-wrap input {
+  padding-right: 40px;
+}
+.auth-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  transition: color 0.13s;
+}
+.auth-eye:hover {
+  color: #333;
+}
+
+/* ── Submit button ────────────────────────────────────────────── */
+.auth-submit {
+  width: 100%;
+  padding: 11px;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: "Bricolage Grotesque", sans-serif;
+  color: #fff;
+  background: #111;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition:
+    background 0.14s,
+    transform 0.1s;
+}
+.auth-submit:hover:not(:disabled) {
+  background: #2d2d2d;
+  transform: translateY(-1px);
+}
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────── */
+.auth-spin {
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Footer copy ──────────────────────────────────────────────── */
+.auth-notice {
+  font-size: 0.74rem;
+  color: #aaa;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  font-style: italic;
+}
+.auth-switch {
+  font-size: 0.845rem;
+  color: #555;
+}
+.auth-link {
+  color: #111;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-link:hover {
+  color: #555;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .auth-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .auth-art {
+    width: 100%;
+    height: 190px;
+    flex-shrink: 0;
+  }
+  .auth-q {
+    display: none;
+  }
+  .auth-form-side {
+    padding: 28px 20px;
+  }
+}
