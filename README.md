@@ -57,17 +57,17 @@ graph TD
 ### 1. Socratic Entry Gateway
 
 Authentication interface utilizing secure session management and cognitive entry gates.
-![Loginpage](./images/login-page.png)
+![Loginpage](./images/Login-page.png)
 
 ### 2. Socratic Chat Workspace
 
 The live agent execution environment featuring transparent rendering of internal strategy, emotional validation tracking, and active parallel sandbox prompts.
-![Chatbotpage](./images/chatbot-page.png)
+![Chatbotpage](./images/Chatbot-Page.png)
 
 ### 3. Mastery Center Dashboard
 
 Comprehensive cognitive progression mapping, diagnostic analytics ledgers, and score distribution tracking across discrete learning sessions.
-![Dashboard](./images/dashboard.png)
+![Dashboard](./images/Dashboard.png)
 
 ## Quick Start
 
