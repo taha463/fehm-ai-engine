@@ -1,17 +1,19 @@
 """
 ╔══════════════════════════════════════════════════════════════════╗
-║         FEHM.AI  —  COGNITIVE ROUTER  v6.0                      ║
+║         FEHM.AI  —  COGNITIVE ROUTER  v6.1                      ║
 ║         Enterprise Shield + Circuit Breaker + Semantic Memory    ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 Files:
   ai_core.py   ← YOU ARE HERE  (Router, Circuit Breaker, Utilities)
-  tasks.py     ← Celery Worker  (Pipeline, Dreaming Phase, Memory)
+  worker.py    ← Celery Worker (Pipeline, Dreaming Phase, Memory)
 """
 
 import os
 import json
+import ssl
 import httpx
+import certifi
 import re
 import time
 import asyncio
@@ -20,6 +22,10 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# TLS verification stays ON. certifi's CA bundle avoids the common
+# Windows "certificate verify failed" error without disabling checks.
+SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 # ═══════════════════════════════════════════════════════════════════
 # 1.  REDIS — single shared connection
@@ -30,7 +36,7 @@ r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 # ═══════════════════════════════════════════════════════════════════
 # 2.  CREDENTIALS
 # ═══════════════════════════════════════════════════════════════════
-GROQ_API_KEY  = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY   = os.getenv("GROQ_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
@@ -39,7 +45,7 @@ GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5
 
 # ═══════════════════════════════════════════════════════════════════
 # 3.  CIRCUIT BREAKER CONSTANTS
-#     Each model has a Redis key:  cb:{MODEL_ID}
+#     Each model has a Redis key:  cb:state:{MODEL_ID}
 #     Value = "open" means the breaker is TRIPPED (route around it).
 #     After COOLDOWN seconds the key expires → breaker resets.
 # ═══════════════════════════════════════════════════════════════════
@@ -111,38 +117,35 @@ def get_model_health() -> dict:
         else:
             fails = int(r.get(_cb_fail_key(mid)) or 0)
             health[mid] = {
-                "status":   "HEALTHY",
-                "failures": fails,
+                "status":    "HEALTHY",
+                "failures":  fails,
                 "threshold": CB_FAILURE_THRESHOLD,
             }
     return health
 
+
 # ═══════════════════════════════════════════════════════════════════
-# 5.  ISOLATED USER-LEVEL RATE LIMITER (GPT-STYLE)
+# 5.  ISOLATED USER-LEVEL RATE LIMITER
 # ═══════════════════════════════════════════════════════════════════
 def check_rate_limit(user_id: str, limit: int = 50) -> tuple[bool, int]:
     """
     Every user gets their own unique key in Redis.
     Limits are isolated. Reset happens every 3 hours.
     """
-    # 1. Create a unique key for THIS specific user
     key = f"user_limit:{user_id}"
     current = r.get(key)
 
-    # 2. Check if they hit THEIR personal limit
     if current and int(current) >= limit:
         ttl = r.ttl(key)
         return False, max(ttl, 0)
 
-    # 3. If not limited, increment THEIR counter
     pipe = r.pipeline()
     pipe.incr(key)
-    
-    # 4. Set reset window to 3 hours (10800 seconds) 
-    # instead of 24 hours (86400)
+
+    # 3-hour window (10800 seconds)
     if not current:
-        pipe.expire(key, 10800) 
-        
+        pipe.expire(key, 10800)
+
     pipe.execute()
     return True, 0
 
@@ -162,10 +165,10 @@ def clean_json(raw_text: str) -> str:
 
     # Graceful fallback — never let a parse error crash the pipeline
     return json.dumps({
-        "hidden_thought":       "System Note: Model bypassed JSON enforcement.",
-        "reply":                text,
+        "hidden_thought":        "System Note: Model bypassed JSON enforcement.",
+        "reply":                 text,
         "empathetic_validation": "",
-        "ui_payload":           {},
+        "ui_payload":            {},
     })
 
 def _professional_limit_message(reset_in: int) -> str:
@@ -234,7 +237,7 @@ def _messages_to_gemini_payload(messages: list, temperature: float) -> dict:
     payload: dict = {
         "contents": contents,
         "generationConfig": {
-            "temperature":    temperature,
+            "temperature":      temperature,
             "responseMimeType": "application/json",
         },
     }
@@ -254,9 +257,12 @@ async def _call_gemini(messages: list, temperature: float) -> str:
         raise RuntimeError(f"Circuit open for {model_id}. Reset in {ttl}s.")
 
     payload = _messages_to_gemini_payload(messages, temperature)
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    # Key goes in a header, not the URL, so it doesn't end up in logs.
+    async with httpx.AsyncClient(verify=SSL_CONTEXT, timeout=60.0) as client:
         resp = await client.post(
-            f"{GEMINI_URL}?key={GEMINI_API_KEY}", json=payload
+            GEMINI_URL,
+            json=payload,
+            headers={"x-goog-api-key": GEMINI_API_KEY},
         )
 
     if resp.status_code == 200:
@@ -286,7 +292,7 @@ async def _call_groq(messages: list, temperature: float, model_id: str,
         "temperature": temperature,
     }
 
-    async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
+    async with httpx.AsyncClient(verify=SSL_CONTEXT, timeout=60.0) as client:
         resp = await client.post(GROQ_URL, headers=headers, json=payload)
 
     if resp.status_code == 200:
@@ -302,7 +308,7 @@ async def _call_groq(messages: list, temperature: float, model_id: str,
 # ═══════════════════════════════════════════════════════════════════
 class CognitiveRouter:
     """
-    Stateless, async, enterprise-grade AI router.
+    Stateless, async AI router with a 3-tier fallback cascade.
 
     Usage:
         router   = CognitiveRouter()
@@ -310,20 +316,20 @@ class CognitiveRouter:
 
     Returns a dict:
         {
-          "content":    str,          # the model's text reply
-          "model_used": str,          # which model actually answered
-          "tier":       int,          # 1/2/3
-          "limited":    bool,         # True if user hit rate limit
-          "limit_message": str | None # human-readable limit note
+          "content":       str,          # the model's text reply
+          "model_used":    str,          # which model actually answered
+          "tier":          int,          # 1/2/3
+          "limited":       bool,         # True if user hit rate limit
+          "limit_message": str | None    # human-readable limit note
         }
     """
 
     async def route(
         self,
-        messages:    list,
-        user_id:     str  = "anonymous",
-        temperature: float = 0.4,
-        bypass_rate_limit: bool = False,
+        messages:          list,
+        user_id:           str   = "anonymous",
+        temperature:       float = 0.4,
+        bypass_rate_limit: bool  = False,
     ) -> dict:
 
         # ── Rate-limit check ──────────────────────────────────────
@@ -378,7 +384,7 @@ cognitive_router = CognitiveRouter()
 
 
 # ═══════════════════════════════════════════════════════════════════
-# 9.  LEGACY SHIM  (keeps tasks.py backward compatible)
+# 9.  LEGACY SHIM  (keeps worker.py / agents.py backward compatible)
 # ═══════════════════════════════════════════════════════════════════
 async def call_ai_direct(messages: list, model: str = "auto",
                          temperature: float = 0.4) -> str:
@@ -388,6 +394,6 @@ async def call_ai_direct(messages: list, model: str = "auto",
     """
     result = await cognitive_router.route(
         messages, user_id="internal_pipeline", temperature=temperature,
-        bypass_rate_limit=True          # internal agent calls are not rate-limited
+        bypass_rate_limit=True,   # internal agent calls are not rate-limited
     )
     return result["content"]
