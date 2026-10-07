@@ -1,6 +1,6 @@
 import httpx
 # Replace with your token
-headers = {"Authorization": "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"}
+headers = {"Authorization": "Github-token"}
 data = {
     "messages": [{"role": "user", "content": "Say hello"}],
     "model": "gpt-4o-mini"
